@@ -2,6 +2,26 @@
 
 Retrieval-Augmented Generation platform: upload PDFs and markdown, then chat with your documents using semantic search and Google Gemini.
 
+## Screenshots
+
+### Architecture
+
+How data flows from the Next.js UI through FastAPI to Postgres, Qdrant, and Google Gemini:
+
+![System architecture](docs/images/architecture.png)
+
+### Chat demo
+
+Ask questions about uploaded documents; answers are grounded in your files with source citations:
+
+![Chat interface](docs/images/chat-demo.png)
+
+### Qdrant vector store
+
+Indexed document chunks live in Qdrant (`document_chunks_gemini_v2`, 3072-dim cosine vectors). Open the dashboard at http://localhost:6333/dashboard to inspect collections and payloads:
+
+![Qdrant collections](docs/images/qdrant-collections.png)
+
 ## Stack
 
 - **Backend:** FastAPI, SQLAlchemy (async), Alembic, PostgreSQL
