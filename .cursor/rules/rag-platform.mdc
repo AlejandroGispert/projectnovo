@@ -1,0 +1,16 @@
+---
+description: RAG platform conventions for projectnovo (FastAPI, Qdrant, LangChain, Next.js)
+globs:
+  - "**/*"
+alwaysApply: true
+---
+
+# projectnovo RAG platform
+
+- Follow `.cursor/skills/projectnovo-rag/SKILL.md` for stack and v1 scope.
+- Scope all data access by authenticated `user_id` (PostgreSQL + Qdrant filters).
+- Do not commit secrets; use `.env` from `.env.example`.
+- Backend: async FastAPI + SQLAlchemy 2.0 + Alembic; API under `/api/v1/`.
+- Vectors: Qdrant collection `document_chunks`, OpenAI `text-embedding-3-small` (1536 dims).
+- Chat: LangChain LCEL with `gpt-4o-mini`; persist messages and `sources` JSON on assistant turns.
+- Prefer minimal diffs; match existing patterns in each package before adding abstractions.
