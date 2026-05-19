@@ -98,6 +98,24 @@ NEXT_PUBLIC_API_URL=http://localhost:8000 npm run dev
 
 > Built a Retrieval-Augmented Generation platform with FastAPI, PostgreSQL, Qdrant, and LangChain. Implemented JWT auth, async document ingestion with OpenAI embeddings, semantic retrieval, and conversational Q&A over user-uploaded PDFs and markdown — deployed via Docker Compose with a Next.js frontend.
 
+## Troubleshooting (Docker)
+
+**Backend container exits immediately (`python3`, exit 0)**  
+You likely started the image with Docker Desktop **Run** instead of Compose. The image default is now `/docker-entrypoint.sh` (migrations + uvicorn). Always use:
+
+```bash
+docker compose up --build
+```
+
+**`exec format error` on Alpine images**  
+Some Docker Desktop setups on Intel Macs cannot run `*-alpine` images. This project uses `postgres:16` and `node:20-bookworm-slim` instead of Alpine variants.
+
+**Start only infra for local backend dev**
+
+```bash
+docker compose up -d postgres qdrant
+```
+
 ## Security notes
 
 - Documents and vectors are scoped per `user_id`

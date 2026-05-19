@@ -13,4 +13,10 @@ COPY . .
 
 RUN mkdir -p /data/uploads
 
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
+
 EXPOSE 8000
+
+# Default when running the image (Compose also uses this via entrypoint)
+CMD ["/docker-entrypoint.sh"]
