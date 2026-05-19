@@ -1,19 +1,19 @@
 # AI Knowledge Assistant (RAG Platform)
 
-Retrieval-Augmented Generation platform: upload PDFs and markdown, then chat with your documents using semantic search and OpenAI.
+Retrieval-Augmented Generation platform: upload PDFs and markdown, then chat with your documents using semantic search and Google Gemini.
 
 ## Stack
 
 - **Backend:** FastAPI, SQLAlchemy (async), Alembic, PostgreSQL
-- **Vectors:** Qdrant + OpenAI `text-embedding-3-small`
-- **AI:** LangChain LCEL + `gpt-4o-mini`
+- **Vectors:** Qdrant + Gemini `gemini-embedding-001` (3072 dims)
+- **AI:** LangChain LCEL + `gemini-2.5-flash-lite` (chat; free-tier friendly)
 - **Frontend:** Next.js 14, TypeScript, Tailwind CSS
 - **Infra:** Docker Compose
 
 ## Prerequisites
 
 - Docker Desktop with Compose v2 (app must be **running** — whale icon in menu bar)
-- OpenAI API key with billing enabled
+- [Google AI Studio](https://aistudio.google.com/apikey) API key (free tier available with rate limits)
 
 ### `docker: command not found` (macOS)
 
@@ -32,11 +32,11 @@ Or use the project helper:
 
 ## Quick start
 
-1. Copy environment file and add your OpenAI key:
+1. Copy environment file and add your Google API key:
 
 ```bash
 cp .env.example .env
-# Edit .env and set OPENAI_API_KEY=sk-...
+# Edit .env and set GOOGLE_API_KEY=...
 ```
 
 2. Start all services:
@@ -81,7 +81,7 @@ pip install -r requirements.txt
 # Start Postgres + Qdrant via docker compose up postgres qdrant
 export DATABASE_URL=postgresql+asyncpg://rag:rag@localhost:5432/rag
 export QDRANT_URL=http://localhost:6333
-export OPENAI_API_KEY=sk-...
+export GOOGLE_API_KEY=...
 alembic upgrade head
 uvicorn app.main:app --reload
 ```
@@ -96,7 +96,7 @@ NEXT_PUBLIC_API_URL=http://localhost:8000 npm run dev
 
 ## CV summary
 
-> Built a Retrieval-Augmented Generation platform with FastAPI, PostgreSQL, Qdrant, and LangChain. Implemented JWT auth, async document ingestion with OpenAI embeddings, semantic retrieval, and conversational Q&A over user-uploaded PDFs and markdown — deployed via Docker Compose with a Next.js frontend.
+> Built a Retrieval-Augmented Generation platform with FastAPI, PostgreSQL, Qdrant, and LangChain. Implemented JWT auth, async document ingestion with Gemini embeddings, semantic retrieval, and conversational Q&A over user-uploaded PDFs and markdown — deployed via Docker Compose with a Next.js frontend.
 
 ## Troubleshooting (Docker)
 
@@ -115,6 +115,12 @@ Some Docker Desktop setups on Intel Macs cannot run `*-alpine` images. This proj
 ```bash
 docker compose up -d postgres qdrant
 ```
+
+**Switched from OpenAI to Gemini**  
+Use `GOOGLE_API_KEY` in `.env`, restart the backend, and re-upload documents. The Qdrant collection is `document_chunks_gemini_v2` (3072-dimensional Gemini embeddings). If ingestion fails with a model error, set `EMBEDDING_MODEL=models/gemini-embedding-001` in `.env`.
+
+**429 quota on chat**  
+`gemini-2.0-flash` often has free-tier limit `0`. Set `CHAT_MODEL=gemini-2.5-flash-lite` in `.env` (or `gemini-flash-latest`) and restart the backend. Wait ~1 minute if you hit per-minute limits.
 
 ## Security notes
 

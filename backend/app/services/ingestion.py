@@ -2,7 +2,7 @@ import uuid
 from pathlib import Path
 
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_openai import OpenAIEmbeddings
+from app.services.google_ai import get_embeddings, require_google_api_key
 from pypdf import PdfReader
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -32,8 +32,7 @@ async def process_document(document_id: uuid.UUID) -> None:
         await db.commit()
 
         try:
-            if not settings.openai_api_key:
-                raise ValueError("OPENAI_API_KEY is not configured")
+            require_google_api_key()
 
             text = extract_text(Path(doc.file_path), doc.content_type)
             if not text:
@@ -47,11 +46,7 @@ async def process_document(document_id: uuid.UUID) -> None:
             if not chunks:
                 raise ValueError("Document produced no chunks after splitting")
 
-            embeddings_model = OpenAIEmbeddings(
-                model=settings.embedding_model,
-                api_key=settings.openai_api_key,
-            )
-            vectors = embeddings_model.embed_documents(chunks)
+            vectors = get_embeddings().embed_documents(chunks)
 
             delete_document_chunks(doc.id)
             upsert_chunks(

@@ -2,7 +2,7 @@
 name: projectnovo-rag
 description: >-
   AI Knowledge Assistant / RAG platform for projectnovo. Use when building or
-  modifying this repo: FastAPI, PostgreSQL, Qdrant, LangChain, OpenAI,
+  modifying this repo: FastAPI, PostgreSQL, Qdrant, LangChain, Gemini,
   Next.js, Docker Compose, JWT auth, document upload, embeddings, or chat.
 ---
 
@@ -13,10 +13,10 @@ description: >-
 | Layer | Choice |
 |-------|--------|
 | Backend | Python, FastAPI, SQLAlchemy (async), Alembic, asyncpg |
-| Vector DB | Qdrant (`document_chunks`, cosine, dim 1536) |
+| Vector DB | Qdrant (`document_chunks_gemini_v2`, cosine, dim 3072) |
 | Relational DB | PostgreSQL (users, documents, conversations, messages) |
-| AI | OpenAI `text-embedding-3-small`, `gpt-4o-mini` |
-| Orchestration | LangChain LCEL (retriever → prompt → ChatOpenAI) |
+| AI | Gemini `gemini-embedding-001`, `gemini-2.5-flash-lite` |
+| Orchestration | LangChain LCEL (retriever → prompt → ChatGoogleGenerativeAI) |
 | Frontend | Next.js App Router, TypeScript, Tailwind |
 | Infra | Docker Compose: postgres, qdrant, backend, frontend |
 
@@ -47,7 +47,7 @@ docker-compose.yml
 
 - Sync chat JSON response (no SSE streaming)
 - `BackgroundTasks` for ingestion (no Celery/Redis)
-- OpenAI only (no Azure)
+- Google Gemini via AI Studio (no OpenAI/Azure in v1)
 - File storage on Docker volume `/data/uploads`
 
 ## Phase → skill mapping

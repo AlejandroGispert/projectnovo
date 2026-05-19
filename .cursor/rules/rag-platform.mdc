@@ -11,6 +11,6 @@ alwaysApply: true
 - Scope all data access by authenticated `user_id` (PostgreSQL + Qdrant filters).
 - Do not commit secrets; use `.env` from `.env.example`.
 - Backend: async FastAPI + SQLAlchemy 2.0 + Alembic; API under `/api/v1/`.
-- Vectors: Qdrant collection `document_chunks`, OpenAI `text-embedding-3-small` (1536 dims).
-- Chat: LangChain LCEL with `gpt-4o-mini`; persist messages and `sources` JSON on assistant turns.
+- Vectors: Qdrant collection `document_chunks_gemini_v2`, Gemini `gemini-embedding-001` (3072 dims).
+- Chat: LangChain LCEL with `gemini-2.5-flash-lite`; persist messages and `sources` JSON on assistant turns.
 - Prefer minimal diffs; match existing patterns in each package before adding abstractions.

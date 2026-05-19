@@ -4,11 +4,11 @@ from typing import Any
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
-from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from qdrant_client import QdrantClient
 from langchain_qdrant import QdrantVectorStore
 
 from app.core.config import settings
+from app.services.google_ai import get_chat_model, get_embeddings, require_google_api_key
 from app.services.qdrant_service import get_qdrant_client, user_filter
 
 
@@ -32,11 +32,11 @@ def _format_docs(docs: list) -> str:
 
 def build_retriever(user_id: uuid.UUID, document_ids: list[uuid.UUID] | None = None):
     client: QdrantClient = get_qdrant_client()
-    embeddings = OpenAIEmbeddings(model=settings.embedding_model, api_key=settings.openai_api_key)
     vector_store = QdrantVectorStore(
         client=client,
         collection_name=settings.qdrant_collection,
-        embedding=embeddings,
+        embedding=get_embeddings(),
+        content_payload_key="text",
     )
     q_filter = user_filter(user_id, document_ids)
     return vector_store.as_retriever(
@@ -49,8 +49,7 @@ async def answer_question(
     user_id: uuid.UUID,
     document_ids: list[uuid.UUID] | None = None,
 ) -> tuple[str, list[dict[str, Any]]]:
-    if not settings.openai_api_key:
-        raise ValueError("OPENAI_API_KEY is not configured")
+    require_google_api_key()
 
     retriever = build_retriever(user_id, document_ids)
     docs = retriever.invoke(question)
@@ -74,12 +73,10 @@ async def answer_question(
             ("human", "{question}"),
         ]
     )
-    llm = ChatOpenAI(model=settings.chat_model, temperature=0, api_key=settings.openai_api_key)
-
     chain = (
         {"context": lambda _: context, "question": RunnablePassthrough()}
         | prompt
-        | llm
+        | get_chat_model()
         | StrOutputParser()
     )
     answer = chain.invoke(question)
